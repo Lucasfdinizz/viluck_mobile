@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Image, StyleSheet, ScrollView, View, TouchableOpacity, FlatList, Dimensions } from 'react-native';
+import { Image, StyleSheet, View, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import axios from "axios";
@@ -40,45 +40,39 @@ export default function HomeScreen() {
     );
   };
 
+  const headerComponent = () => (
+    <ThemedView style={styles.header}>
+      <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
+      <ThemedText type="title" style={styles.headerTitle}>Bem-vindo à Viluck!</ThemedText>
+    </ThemedView>
+  );
+  
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
-        <ThemedView style={styles.header}>
-          <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
-          <ThemedText type="title" style={styles.headerTitle}>Bem-vindo à Viluck!</ThemedText>
-        </ThemedView>
-
-        <FlatList
-          data={products}
-          renderItem={renderProduct}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={2} 
-          columnWrapperStyle={styles.columnWrapper} 
-          contentContainerStyle={styles.productList} 
-        />
-      </ScrollView>
-    </View>
+    <FlatList
+      ListHeaderComponent={headerComponent} // Exibe o cabeçalho antes da lista
+      data={products}
+      renderItem={renderProduct}
+      keyExtractor={(item) => item.id.toString()}
+      numColumns={2}
+      columnWrapperStyle={styles.columnWrapper}
+      contentContainerStyle={styles.productList}
+      style={styles.flatListContainer} // Adicionado para controlar o fundo
+      showsVerticalScrollIndicator={false} // Remove a barra de rolagem
+    />
   );
 }
 
-const { width } = Dimensions.get('window'); 
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f7f7',
-  },
-  scrollContainer: {
-    flex: 1,
-    padding: 15,
-  },
-  scrollContent: {
-    paddingBottom: 20,
+    backgroundColor: '#f7f7f7',  // Cor de fundo clara
   },
   header: {
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
-    padding: 25,
+    backgroundColor: '#f7f7f7',  // Manter o fundo claro
+    paddingVertical: 25, // ajuste no padding vertical para espaçamento
   },
   logo: {
     width: 180,
@@ -91,6 +85,8 @@ const styles = StyleSheet.create({
   },
   productList: {
     marginTop: 0,
+    marginLeft: 10,
+    marginRight: 10,
   },
   columnWrapper: {
     justifyContent: 'space-between', 
@@ -98,10 +94,10 @@ const styles = StyleSheet.create({
   },
   productContainer: {
     flexDirection: 'column',
-    marginBottom: 20, 
+    marginBottom: 12, 
     padding: 10,
-    width: (width / 2) - 25, 
-    backgroundColor: '#fff',
+    width: (width / 2) - 15, 
+    backgroundColor: '#fff',  // Fundo branco para os produtos
     borderRadius: 10,
     elevation: 3,
     shadowColor: '#000',
@@ -162,4 +158,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  flatListContainer: {
+    backgroundColor: '#f7f7f7',  // Cor de fundo clara para o FlatList
+  }
 });
