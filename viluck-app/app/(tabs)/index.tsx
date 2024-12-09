@@ -1,50 +1,21 @@
-import React from 'react';
-import { Image, StyleSheet, ScrollView, Text, View, TouchableOpacity, FlatList } from 'react-native';
+import React, {useEffect} from 'react';
+import { Image, StyleSheet, ScrollView, View, TouchableOpacity, FlatList } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import Icon from 'react-native-vector-icons/Feather';
-import { useRouter } from 'expo-router'; // Importando o useRouter
-
+//import { useRouter } from 'expo-router';
+import axios from "axios";
+import {Produto} from "@/types/produto";
+import {ValorEmReal} from "@/helpers/Conversores";
+import {API_URL, IMAGE_URL} from "@/constants/Urls";
 export default function HomeScreen() {
-  // Dados dos produtos
-  const products = [
-    {
-      id: 1,
-      name: "Blusa Elegante",
-      price: "R$ 99,99",
-      size: "M",
-      color: "Azul",
-      image: require('@/assets/images/roupa.png')
-    },
-    {
-      id: 2,
-      name: "Saia Estilosa",
-      price: "R$ 129,99",
-      size: "P",
-      color: "Preto",
-      image: require('@/assets/images/roupa.png')
-    },
-    {
-      id: 3,
-      name: "Camisa Casual",
-      price: "R$ 79,99",
-      size: "G",
-      color: "Branca",
-      image: require('@/assets/images/roupa.png')
-    },
-    {
-      id: 4,
-      name: "Calça Jeans",
-      price: "R$ 149,99",
-      size: "M",
-      color: "Azul",
-      image: require('@/assets/images/roupa.png')
-    },
-    // Adicione mais produtos conforme necessário
-  ];
+  const [products, setProducts] = React.useState<Produto[]>([]);
+  useEffect(() => {
+    axios.get(`${API_URL}/produtos`).then(e => setProducts(e.data));
+  }, []);
+
 
   // Instanciando o router
-  const router = useRouter();
+  //const router = useRouter();
 
   // Funções dos botões
   const handleAddToCart = (productId: number) => {
@@ -58,24 +29,30 @@ export default function HomeScreen() {
   };
 
   // Função para renderizar cada item
-  const renderProduct = ({ item }) => (
-      <View style={styles.productContainer}>
-        <Image source={item.image} style={styles.productImage} />
-        <View style={styles.productInfo}>
-          <ThemedText type="subtitle">{item.name}</ThemedText>
-          <ThemedText>{item.price}</ThemedText>
-          <ThemedText>Tamanho: {item.size}</ThemedText> {/* Tamanho do produto */}
-          <ThemedText>Cor: {item.color}</ThemedText> {/* Cor do produto */}
+  const renderProduct = (row) => {
+    const item = row.item
+    console.log( item );
+    return (
+        <View style={styles.productContainer}>
+          <Image source={`${IMAGE_URL}${item.imagem}`} style={styles.productImage} />
+          <View style={styles.productInfo}>
+            <ThemedText type="title">{item.nome}</ThemedText>
+            <ThemedText type="subtitle">{item.descricao}</ThemedText>
+            <ThemedText>{ValorEmReal(item.preco)}</ThemedText>
+            <ThemedText>Tamanho: {item.tamanho.nome}</ThemedText> {/* Tamanho do produto */}
+            <ThemedText>Cor: {item.cor}</ThemedText> {/* Cor do produto */}
 
-          {/* Botões de visualização */}
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.button} onPress={() => handleAddToCart(item.id)}>
-              <ThemedText type="defaultSemiBold">Adicionar ao Carrinho</ThemedText>
-            </TouchableOpacity>
+            {/* Botões de visualização */}
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity style={styles.button} onPress={() => handleAddToCart(item.id)}>
+                <ThemedText type="defaultSemiBold">Adicionar ao Carrinho</ThemedText>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-  );
+    );
+
+  }
 
   return (
       <View style={styles.container}>
