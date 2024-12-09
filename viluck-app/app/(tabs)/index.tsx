@@ -1,138 +1,165 @@
-import React, {useEffect} from 'react';
-import { Image, StyleSheet, ScrollView, View, TouchableOpacity, FlatList } from 'react-native';
+import React, { useEffect } from 'react';
+import { Image, StyleSheet, ScrollView, View, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-//import { useRouter } from 'expo-router';
 import axios from "axios";
-import {Produto} from "@/types/produto";
-import {ValorEmReal} from "@/helpers/Conversores";
-import {API_URL, IMAGE_URL} from "@/constants/Urls";
+import { Produto } from "@/types/produto";
+import { ValorEmReal } from "@/helpers/Conversores";
+import { API_URL, IMAGE_URL } from "@/constants/Urls";
+
 export default function HomeScreen() {
   const [products, setProducts] = React.useState<Produto[]>([]);
+
   useEffect(() => {
     axios.get(`${API_URL}/produtos`).then(e => setProducts(e.data));
   }, []);
 
-
-  // Instanciando o router
-  //const router = useRouter();
-
-  // Funções dos botões
   const handleAddToCart = (productId: number) => {
     console.log(`Produto ${productId} adicionado ao carrinho!`);
-    // Aqui você pode adicionar a lógica para adicionar ao carrinho
   };
 
-  const handleLearnMore = (productId: number) => {
-    console.log(`Saiba mais sobre o produto ${productId}`);
-    // Aqui você pode exibir mais informações sobre o produto ou navegar para outra tela
-  };
-
-  // Função para renderizar cada item
   const renderProduct = (row) => {
-    const item = row.item
-    console.log( item );
+    const item = row.item;
     return (
-        <View style={styles.productContainer}>
-          <Image source={`${IMAGE_URL}${item.imagem}`} style={styles.productImage} />
-          <View style={styles.productInfo}>
-            <ThemedText type="title">{item.nome}</ThemedText>
-            <ThemedText type="subtitle">{item.descricao}</ThemedText>
-            <ThemedText>{ValorEmReal(item.preco)}</ThemedText>
-            <ThemedText>Tamanho: {item.tamanho.nome}</ThemedText> {/* Tamanho do produto */}
-            <ThemedText>Cor: {item.cor}</ThemedText> {/* Cor do produto */}
+      <View style={styles.productContainer}>
+        <Image source={{ uri: `${IMAGE_URL}${item.imagem}` }} style={styles.productImage} />
+        <View style={styles.productInfo}>
+          <ThemedText type="title" style={styles.productName}>{item.nome}</ThemedText>
+          <ThemedText type="subtitle" style={styles.productDescription}>{item.descricao}</ThemedText>
+          <ThemedText style={styles.productPrice}>{ValorEmReal(item.preco)}</ThemedText>
+          <ThemedText style={styles.productDetails}>Tamanho: {item.tamanho.nome}</ThemedText>
+          <ThemedText style={styles.productDetails}>Cor: {item.cor}</ThemedText>
 
-            {/* Botões de visualização */}
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity style={styles.button} onPress={() => handleAddToCart(item.id)}>
-                <ThemedText type="defaultSemiBold">Adicionar ao Carrinho</ThemedText>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => handleAddToCart(item.id)}>
+              <ThemedText type="defaultSemiBold" style={styles.buttonText}>Adicionar ao Carrinho</ThemedText>
+            </TouchableOpacity>
           </View>
         </View>
+      </View>
     );
-
-  }
+  };
 
   return (
-      <View style={styles.container}>
-        <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
-          <ThemedView style={styles.header}>
-            <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
-            <ThemedText type="title">Bem-vindo à Viluck!</ThemedText>
-          </ThemedView>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+        <ThemedView style={styles.header}>
+          <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
+          <ThemedText type="title" style={styles.headerTitle}>Bem-vindo à Viluck!</ThemedText>
+        </ThemedView>
 
-          {/* Lista de Produtos em 2 colunas */}
-          <FlatList
-              data={products}
-              renderItem={renderProduct}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={2}  // Exibir 2 produtos por linha
-              columnWrapperStyle={styles.columnWrapper}  // Estilo para separar as colunas
-              contentContainerStyle={styles.productList}
-          />
-        </ScrollView>
-      </View>
+        <FlatList
+          data={products}
+          renderItem={renderProduct}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2} 
+          columnWrapperStyle={styles.columnWrapper} 
+          contentContainerStyle={styles.productList} 
+        />
+      </ScrollView>
+    </View>
   );
 }
+
+const { width } = Dimensions.get('window'); 
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f7f7f7',
   },
   scrollContainer: {
     flex: 1,
-    padding: 20,
+    padding: 15,
   },
   scrollContent: {
-    paddingBottom: 20, // Remova o espaço extra para o menu fixo
+    paddingBottom: 20,
   },
   header: {
-    marginBottom: 20,
     alignItems: 'center',
-    backgroundColor: 'black',  // Cor de fundo do cabeçalho
-    padding: 20,
-    borderRadius: 10,
+    backgroundColor: '#f7f7f7',
+    padding: 25,
   },
   logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
+    width: 180,
+    height: 180,
+    marginBottom: 25,
+  },
+  headerTitle: {
+    color: '#dc4895',
+    fontWeight: 'bold',
   },
   productList: {
-    marginTop: 20,
+    marginTop: 0,
   },
   columnWrapper: {
-    justifyContent: 'space-between', // Para separar as colunas
-    marginBottom: 20,
+    justifyContent: 'space-between', 
+    marginBottom: 0, 
   },
   productContainer: {
-    flexDirection: 'column',  // Organizar em coluna para cada produto
-    marginBottom: 20,
-    padding: 5,
-    flex: 1,  // Garantir que ocupe a mesma quantidade de espaço em cada coluna
+    flexDirection: 'column',
+    marginBottom: 20, 
+    padding: 10,
+    width: (width / 2) - 25, 
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
   productImage: {
-    width: '100%',  // Ocupa toda a largura disponível
-    height: 250,
+    width: '100%',
+    height: 200,
     borderRadius: 10,
-    marginBottom: 10,  // Espaço entre a imagem e as descrições
+    marginBottom: 5,
+    resizeMode: 'cover',
   },
   productInfo: {
     justifyContent: 'center',
     flex: 1,
-    alignItems: 'left',  // Centralizar o texto
+    paddingHorizontal: 5,
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  productDescription: {
+    fontSize: 14,
+    color: '#777',
+    marginVertical: 5,
+  },
+  productPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#dc4895',
+    marginVertical: 5,
+  },
+  productDetails: {
+    fontSize: 14,
+    color: '#777',
+    marginVertical: 3,
   },
   buttonsContainer: {
     flexDirection: 'row',
-    gap: 10,
-    marginTop: 10,
+    marginTop: 15,
+    justifyContent: 'center',
   },
   button: {
     backgroundColor: '#dc4895',
-    padding: 10,
-    borderRadius: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 30,
     flex: 1,
     alignItems: 'center',
+    elevation: 2,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
